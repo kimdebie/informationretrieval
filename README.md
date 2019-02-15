@@ -1,2 +1,2 @@
-# informationretrieval
-Assignments for course Information Retrieval at UvA
+# knowledge_representation
+Assignments for course Knowledge Representation at UvA
