@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
-    Davis-Putnam-LL SAT solver in plain format as specified by the assignment.
-    For a version with metrics/logging, check SAT_for_analysis.py.
+    Davis-Putnam-LL SAT solver. This version includes metrics for analysis.
+    It should be called from runner.py. For the 'plain' version, look at SAT.py.
 '''
 
 import sys
@@ -10,13 +10,31 @@ from collections import Counter
 from itertools import chain
 import csv
 
+heuristic = sys.argv[1]
 
-def main():
+# metrics to keep track of
+tried_assignments = 0
+backtracks = 0
+pure_literals_assigned = 0
+unit_literals_assigned = 0
+
+def start_DPLL(timestamp, *args):
+
+    global tried_assignments
 
     # read puzzle from either function input or command line
+    if len(args) > 0:
+        puzzle = args[0]
+    else:
+        puzzle = sys.argv[2]
 
-    puzzle = sys.argv[2]
-    heuristic = sys.argv[1]
+    level = puzzle.split('_')[0]
+    puzzleid = ''.join(i for i in puzzle if i.isdigit())
+    name_logfile = 'results/log_' + heuristic + '_' + timestamp + '.csv'
+    with open(name_logfile, 'a') as logfile:
+        w = csv.writer(logfile)
+        w.writerow(["Level", "PuzzleID", "Tried_assignments", "Backtracks", "Unit_literals_assigned", "Pure_literals_assigned"])
+
 
     ruleset = read_DIMACS(puzzle)
 
@@ -27,9 +45,16 @@ def main():
 
     # test whether the algorithm has returned a solution
     if solution:
+
+        with open(name_logfile, 'a') as logfile:
+            w = csv.writer(logfile)
+            w.writerow([level, puzzleid, tried_assignments, backtracks, unit_literals_assigned, pure_literals_assigned])
+        #pos_sol = [value for value in solution if value > 0]
+        #pos_sol.sort()
         print('Success!')
 
     else:
+        print(tried_assignments)
         print('This problem is unsatisfiable.')
 
 def DP_algorithm(ruleset, assigned_literals):
@@ -39,6 +64,13 @@ def DP_algorithm(ruleset, assigned_literals):
     ruleset, unit_assigned = check_unit_clauses(ruleset)
 
     assigned_literals = assigned_literals + pure_assigned + unit_assigned
+
+    # update metrics: more unit and pure literals assigned
+    global unit_literals_assigned
+    global pure_literals_assigned
+
+    unit_literals_assigned += len(unit_assigned)
+    pure_literals_assigned += len(pure_assigned)
 
     # if we have received a -1, we have failed
     if ruleset == -1:
@@ -62,10 +94,21 @@ def DP_algorithm(ruleset, assigned_literals):
     else:
         new_literal = assign_new_literal_random(ruleset)
 
+    # update metric: one more attempted literal assignment
+    global tried_assignments
+    tried_assignments += 1
+
     solution = DP_algorithm(update_ruleset(ruleset, new_literal), assigned_literals + [new_literal])
 
     # if we fail to find a solution, we try again with the negated literal
     if not solution:
+
+        # update metrics: an extra backtrack, but less pure/unit literals assigned
+        global backtracks
+        backtracks += 1
+        unit_literals_assigned -= len(unit_assigned)
+        pure_literals_assigned -= len(pure_assigned)
+
         solution = DP_algorithm(update_ruleset(ruleset, -new_literal), assigned_literals + [-new_literal])
 
     return solution
@@ -101,7 +144,7 @@ def check_pure_literals(ruleset):
 
     '''Check for pure literals and return them as a list.'''
 
-    # extracting all literals present
+    # getting the counts of all literals
     all_literals = set(chain.from_iterable(ruleset))
 
     # storing pure literals
@@ -250,7 +293,7 @@ def read_DIMACS(filename):
 
     DIMACS = []
 
-    with open(filename) as file:
+    with open('QQwing_dimacs_sudokus/' + filename) as file:
         data = file.readlines()
 
     for line in data:
