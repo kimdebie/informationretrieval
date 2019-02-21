@@ -7,7 +7,7 @@ sns.set()
 from scipy import stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 from statsmodels.stats.multicomp import MultiComparison
-import math
+import itertools
 
 def main():
 
@@ -28,6 +28,7 @@ def main():
     #     xlab="Difficulty", ylab="log Count", title="Spread of difficulty counts")
 
     #scatter_groups(all_data, "Difficulty", "random", "fewestoptions", title="Difficulty across heuristics")
+    #scatter_all_groups(all_data, "Difficulty", heuristics, title="Difficulty across heuristics")
 
     # Statistical testing: ANOVA
     ANOVA(all_data, long_data, "Difficulty")
@@ -101,12 +102,17 @@ def distplot_groups(df, var_viz, groups, xlab=None, ylab=None, title=None):
     plt.show()
 
 
-def scatter_groups(df, scatter_var, xaxis, yaxis, title=None):
+def scatter_groups(df, scatter_var, xaxis, yaxis, title=None, color=None):
 
     df = df.replace(0, np.NaN)
     xvar = xaxis + "-" + scatter_var
     yvar = yaxis + "-" + scatter_var
-    sns.scatterplot(x=xvar, y=yvar, data=df)
+
+    if color:
+        sns.scatterplot(x=xvar, y=yvar, data=df, hue=0, palette=[color], legend=False)
+    else:
+        sns.scatterplot(x=xvar, y=yvar, data=df)
+
 
     plt.xlabel(xaxis)
     plt.ylabel(yaxis)
@@ -115,6 +121,15 @@ def scatter_groups(df, scatter_var, xaxis, yaxis, title=None):
         plt.title(title)
 
     plt.show()
+
+
+def scatter_all_groups(df, scatter_var, groups, title=None):
+
+    current_palette = sns.color_palette()
+
+    combs = itertools.combinations(groups, 2)
+    for i, com in enumerate(combs):
+        scatter_groups(df, scatter_var, com[0], com[1], title=title, color=current_palette[i])
 
 
 def ANOVA(df, longdata, metric, pthreshold=0.05):
