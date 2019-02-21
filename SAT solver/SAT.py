@@ -10,13 +10,12 @@ from collections import Counter
 from itertools import chain
 import csv
 
+heuristic = sys.argv[1]
 
 def main():
 
     # read puzzle from either function input or command line
-
     puzzle = sys.argv[2]
-    heuristic = sys.argv[1]
 
     ruleset = read_DIMACS(puzzle)
 
@@ -176,7 +175,7 @@ def assign_new_literal_random(ruleset):
 
     '''Randomly select a new literal to be assigned.'''
 
-    all_literals = set(chain.from_iterable(ruleset))
+    all_literals = list(chain.from_iterable(ruleset))
 
     return random.choice(all_literals)
 
@@ -261,3 +260,7 @@ def read_DIMACS(filename):
             DIMACS.append(line)
 
     return DIMACS
+
+
+if __name__ == '__main__':
+    main()

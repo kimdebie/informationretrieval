@@ -15,12 +15,13 @@ heuristic = sys.argv[1]
 # metrics to keep track of
 tried_assignments = 0
 backtracks = 0
-pure_literals_assigned = 0
-unit_literals_assigned = 0
 
 def start_DPLL(timestamp, *args):
 
     global tried_assignments
+    global backtracks
+    tried_assignments = 0
+    backtracks = 0
 
     # read puzzle from either function input or command line
     if len(args) > 0:
@@ -28,13 +29,8 @@ def start_DPLL(timestamp, *args):
     else:
         puzzle = sys.argv[2]
 
-    level = puzzle.split('_')[0]
     puzzleid = ''.join(i for i in puzzle if i.isdigit())
     name_logfile = 'results/log_' + heuristic + '_' + timestamp + '.csv'
-    with open(name_logfile, 'a') as logfile:
-        w = csv.writer(logfile)
-        w.writerow(["Level", "PuzzleID", "Tried_assignments", "Backtracks", "Unit_literals_assigned", "Pure_literals_assigned"])
-
 
     ruleset = read_DIMACS(puzzle)
 
@@ -48,7 +44,7 @@ def start_DPLL(timestamp, *args):
 
         with open(name_logfile, 'a') as logfile:
             w = csv.writer(logfile)
-            w.writerow([level, puzzleid, tried_assignments, backtracks, unit_literals_assigned, pure_literals_assigned])
+            w.writerow([puzzleid, tried_assignments, backtracks])
         #pos_sol = [value for value in solution if value > 0]
         #pos_sol.sort()
         print('Success!')
@@ -65,14 +61,7 @@ def DP_algorithm(ruleset, assigned_literals):
 
     assigned_literals = assigned_literals + pure_assigned + unit_assigned
 
-    # update metrics: more unit and pure literals assigned
-    global unit_literals_assigned
-    global pure_literals_assigned
-
-    unit_literals_assigned += len(unit_assigned)
-    pure_literals_assigned += len(pure_assigned)
-
-    # if we have received a -1, we have failed
+        # if we have received a -1, we have failed
     if ruleset == -1:
         return []
 
@@ -103,11 +92,9 @@ def DP_algorithm(ruleset, assigned_literals):
     # if we fail to find a solution, we try again with the negated literal
     if not solution:
 
-        # update metrics: an extra backtrack, but less pure/unit literals assigned
+        # update metrics: an extra backtrack
         global backtracks
         backtracks += 1
-        unit_literals_assigned -= len(unit_assigned)
-        pure_literals_assigned -= len(pure_assigned)
 
         solution = DP_algorithm(update_ruleset(ruleset, -new_literal), assigned_literals + [-new_literal])
 
@@ -219,7 +206,7 @@ def assign_new_literal_random(ruleset):
 
     '''Randomly select a new literal to be assigned.'''
 
-    all_literals = set(chain.from_iterable(ruleset))
+    all_literals = list(chain.from_iterable(ruleset))
 
     return random.choice(all_literals)
 
@@ -293,7 +280,7 @@ def read_DIMACS(filename):
 
     DIMACS = []
 
-    with open('QQwing_dimacs_sudokus/' + filename) as file:
+    with open('dimacs_sudokus/' + filename) as file:
         data = file.readlines()
 
     for line in data:
