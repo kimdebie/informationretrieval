@@ -1,22 +1,27 @@
-To do:
-* Run each heuristic
-* Come up with script for analysis
+## Solving SAT problems using DPLL
+
+This repository contains scripts for solving SAT problems using the Davis-Putnam-Logemann-Loveland algorithm.
+
+### SAT.py [heuristic] [DIMACSfile]
+
+The main program can be found in SAT.py. It must be called with a **heuristic** and the relative path of a **DIMACS file**. Heuristics may be either of:
+
+* `JW` for the Jaroslaw-Wang one-sided heuristic
+* `JWTS` for the Jaroslaw-Wang two-sided heuristic
+* `MOM` for the MOMs heuristic
+* `nishio` for the Nishio heuristic, explained in the paper accompanying this report.
+
+DIMACS files must be provided in the conventional format (lines with c and p may be omitted). An example file is *sudoku_nr_14261.txt*.
 
 
-Analysis
-- test the relative level of performance of each of the heuristics
-- across each of the levels of difficulty
-- level of performance is:
-Being good at finding the correct path: few number of backtracks
-Getting to the solution quickly: small number of guesses
+### results
 
+The folder 'results' contains experimental results from running the algorithm and its different heuristics on a set of Sudoku problems.
 
-Test if what was hard under the random distribution is still hard under the heuristics.
+### scripts
 
-Hardness score: guesses + backtracks
-Scatterplot: xaxis hardness score for random, yaxis hardness score for heuristic
-If a point is high on the xaxis and high on the yaxis, it is difficult under the heuristic as well as under random
-If it is low on both, it is always easy
-If a point is high on the xaxis and low on the yaxis, it is difficult under random, but easy under heuristic
-If a point is low on xaxis and high on yaxis, it is more difficult under the heuristic than under random.
-Interested in RELATIVE performance; so the axes are scaled to their relative domains. Alternative: hardness RANK instead of hardness score. 
+The folder 'scripts' contains several scripts used in the analysis of the obtained results.
+
+### sudokus
+
+The folder 'sudokus' contains files with sudoku puzzles that can be converted to DIMACS format with `scripts/clean_DIMACS.py`.

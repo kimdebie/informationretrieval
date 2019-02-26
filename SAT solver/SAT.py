@@ -2,6 +2,8 @@
 '''
     Davis-Putnam-LL SAT solver in plain format as specified by the assignment.
     For a version with metrics/logging, check SAT_for_analysis.py.
+
+    Implemented by Kim de Bie
 '''
 
 import sys
@@ -14,14 +16,16 @@ heuristic = sys.argv[1]
 
 def main():
 
-    # read puzzle from either function input or command line
+    # read puzzle from command line
     puzzle = sys.argv[2]
 
+    # save the file as ruleset
     ruleset = read_DIMACS(puzzle)
 
     # remove tautologies (this only has to be done once)
     ruleset = check_tautologies(ruleset)
 
+    # call into algorithm
     solution = DP_algorithm(ruleset, [])
 
     # test whether the algorithm has returned a solution
@@ -55,12 +59,16 @@ def DP_algorithm(ruleset, assigned_literals):
     elif heuristic == "JWTS":
         new_literal = assign_new_literal_JWTS(ruleset)
 
-    elif heuristic == "fewestoptions":
-        new_literal = assign_new_literal_FO(ruleset)
+    elif heuristic == "nishio":
+        new_literal = assign_new_literal_nishio(ruleset)
+
+    elif heuristic == "MOM":
+        new_literal = assign_new_literal_MOMs(ruleset)
 
     else:
         new_literal = assign_new_literal_random(ruleset)
 
+    # recursively call into the algorithm with the new literal assigned
     solution = DP_algorithm(update_ruleset(ruleset, new_literal), assigned_literals + [new_literal])
 
     # if we fail to find a solution, we try again with the negated literal
@@ -98,7 +106,7 @@ def update_ruleset(ruleset, literal):
 
 def check_pure_literals(ruleset):
 
-    '''Check for pure literals and return them as a list.'''
+    '''Check for pure literals and return them as a list, plus updated ruleset.'''
 
     # extracting all literals present
     all_literals = set(chain.from_iterable(ruleset))
@@ -121,7 +129,7 @@ def check_pure_literals(ruleset):
 
 def check_unit_clauses(ruleset):
 
-    '''Checking for unit clauses.'''
+    '''Checking for unit clauses and return them as a list, plus updated ruleset.'''
 
     assigned_literals = []
 
@@ -130,7 +138,7 @@ def check_unit_clauses(ruleset):
 
     while len(unit_clauses) > 0:
 
-        # everytime, select the first unit clause that is still available
+        # select the first unit clause that is still available
         unit_clause1 = unit_clauses[0]
 
         # awkwardly select the (only) element from the set
@@ -168,7 +176,13 @@ def check_tautologies(ruleset):
 
 def has_tautology(clause):
 
-    return any(value > 1 for value in Counter([abs(int(literal)) for literal in clause]).values())
+    '''Checks if a clause has a tautology: a literal and its negated form both occur.'''
+
+    for literal in clause:
+        if -literal in clause:
+            return True
+        else:
+            return False
 
 
 def assign_new_literal_random(ruleset):
@@ -178,6 +192,28 @@ def assign_new_literal_random(ruleset):
     all_literals = list(chain.from_iterable(ruleset))
 
     return random.choice(all_literals)
+
+
+def assign_new_literal_MOMs(ruleset):
+
+    '''Select a new literal to be assigned based on the MOMs heuristic.'''
+
+    # determine minimum clause size
+    minsize = min([len(clause) for clause in ruleset])
+
+    # selecting the clauses with minimum size
+    rules_selection = [clause for clause in ruleset if len(clause) == minsize]
+
+    literal_counts = Counter()
+
+    for clause in rules_selection:
+        for literal in clause:
+            literal_counts[literal] += 1
+
+    # select the literal with the highest occurrence count in the shortest clauses
+    selected_lit = max(literal_counts, key=lambda key: literal_counts[key])
+
+    return selected_lit
 
 
 def assign_new_literal_JW(ruleset):
@@ -190,6 +226,7 @@ def assign_new_literal_JW(ruleset):
     for clause in ruleset:
         for literal in clause:
 
+            # the added value for a literal is weighted by the length of its clause
             addition = 2 ** -len(clause)
 
             literal_counts[literal] += addition
@@ -211,6 +248,7 @@ def assign_new_literal_JWTS(ruleset):
     for clause in ruleset:
         for literal in clause:
 
+            # the added value for a literal is weighted by the length of its clause
             addition = 2 ** -len(clause)
 
             abs_counts[abs(literal)] += addition
@@ -219,27 +257,30 @@ def assign_new_literal_JWTS(ruleset):
     # getting the literal with the highest summed-up value
     lit = max(abs_counts, key=lambda key: abs_counts[key])
 
-    # now extract the polarity that occurs most often
+    # now extract the polarity that has the heighest weight
     selected_lit = lit if literal_counts[lit] > literal_counts[-lit] else -lit
 
     return selected_lit
 
 
-def assign_new_literal_FO(ruleset):
+def assign_new_literal_nishio(ruleset):
 
     '''Returns the literal for which there are the fewest options left.
-    Now implemented as: the positive literal that has the fewest negative
-    constraints'''
+    This is equivalent to the positive literal that has the fewest negative
+    constraints.'''
 
     literal_counts = Counter()
 
     for clause in ruleset:
         for lit in clause:
+
+            # count only negative occurrences
             if lit < 0:
                 literal_counts[lit] += 1
 
     selected_lit = min(literal_counts, key=lambda key: literal_counts[key])
 
+    # return the negation of the selected literal, so the positive version!
     return -selected_lit
 
 
