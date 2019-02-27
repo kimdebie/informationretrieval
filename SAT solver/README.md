@@ -2,16 +2,20 @@
 
 This repository contains scripts for solving SAT problems using the Davis-Putnam-Logemann-Loveland algorithm.
 
-### SAT.py [heuristic] [DIMACSfile]
 
-The main program can be found in SAT.py. It must be called with a **heuristic** and the relative path of a **DIMACS file**. Heuristics may be either of:
+### ./SAT.sh -heuristic DIMACSfile
 
-* `JW` for the Jaroslaw-Wang one-sided heuristic
-* `JWTS` for the Jaroslaw-Wang two-sided heuristic
-* `MOM` for the MOMs heuristic
-* `nishio` for the Nishio heuristic, explained in the paper accompanying this report.
+The main program can be run from SAT.sh. It must be called with a **heuristic** and the relative path of a **DIMACS file**. Heuristics may be either of:
 
-DIMACS files must be provided in the conventional format (lines with c and p may be omitted). An example file is *sudoku_nr_14261.txt*.
+* `-S1` for the random branching strategy
+* `-S2` for the MOMS heuristic
+* `-S3` for the Jaroslaw-Wang one-sided heuristic
+* `-S4` for the Jaroslaw-Wang two-sided heuristic
+* `-S5` for the Nishio heuristic, explained in the paper accompanying this report.
+
+DIMACS files must be provided in the conventional format (lines with c and p may be omitted). An example file is *sudoku_nr_14803.txt*.
+
+Alternatively, the Python script may be called directly as `python SAT.py heuristic filename`, where `heuristic` is one of `MOMS, JW, JWTS, nishio, random`, and `filename` is the relative path to a DIMACS file.
 
 
 ### results

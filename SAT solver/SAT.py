@@ -37,6 +37,10 @@ def main():
 
 def DP_algorithm(ruleset, assigned_literals):
 
+    '''The DPLL algorithm. It consists of a simplifcation stage and a stage in which
+    literals are assigned according to a heuristic. If the ruleset is not satisfied,
+    the algorithm recursively calls itself.'''
+
     # first run the simplifcation rules
     ruleset, pure_assigned = check_pure_literals(ruleset)
     ruleset, unit_assigned = check_unit_clauses(ruleset)
@@ -62,7 +66,7 @@ def DP_algorithm(ruleset, assigned_literals):
     elif heuristic == "nishio":
         new_literal = assign_new_literal_nishio(ruleset)
 
-    elif heuristic == "MOM":
+    elif heuristic == "MOMS":
         new_literal = assign_new_literal_MOMs(ruleset)
 
     else:

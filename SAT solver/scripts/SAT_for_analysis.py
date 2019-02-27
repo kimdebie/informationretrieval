@@ -55,6 +55,8 @@ def start_DPLL(timestamp, *args):
 
 def DP_algorithm(ruleset, assigned_literals):
 
+    global tried_assignments
+    global backtracks
     # first run the simplifcation rules
     ruleset, pure_assigned = check_pure_literals(ruleset)
     ruleset, unit_assigned = check_unit_clauses(ruleset)
@@ -71,6 +73,7 @@ def DP_algorithm(ruleset, assigned_literals):
 
     # we have not yet found a solution, so we assign a new literal
     # by the determined method and run the algorithm with it
+    tried_assignments += 1
     if heuristic == "JW":
         new_literal = assign_new_literal_JW(ruleset)
 
@@ -91,6 +94,7 @@ def DP_algorithm(ruleset, assigned_literals):
 
     # if we fail to find a solution, we try again with the negated literal
     if not solution:
+        backtracks += 1
         solution = DP_algorithm(update_ruleset(ruleset, -new_literal), assigned_literals + [-new_literal])
 
     return solution

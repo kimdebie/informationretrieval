@@ -12,7 +12,7 @@ import itertools
 def main():
 
     folder = '../results'
-    heuristics = ['fewestoptions', 'JW', 'JWTS', 'random']
+    heuristics = ['nishio', 'JW', 'JWTS', 'random']
     all_data, long_data = read_results(folder, long_format=True)
 
     # Getting initial statistics
@@ -27,8 +27,8 @@ def main():
     # distplot_groups(all_data, "Difficulty", heuristics, \
     #     xlab="Difficulty", ylab="log Count", title="Spread of difficulty counts")
 
-    #scatter_groups(all_data, "Difficulty", "random", "fewestoptions", title="Difficulty across heuristics")
-    #scatter_all_groups(all_data, "Difficulty", heuristics, title="Difficulty across heuristics")
+    #scatter_groups(all_data, "Difficulty", "random", "nishio", title="Difficulty across heuristics")
+    scatter_all_groups(all_data, "Difficulty", heuristics, title="Difficulty across heuristics")
 
     # Statistical testing: ANOVA
     ANOVA(all_data, long_data, "Difficulty")
@@ -139,10 +139,10 @@ def ANOVA(df, longdata, metric, pthreshold=0.05):
     significantly better than the others?)'''
 
     # remove rows with difficulty score 0: heuristics have no effect
-    df = df[df["fewestoptions-" + metric] > 0]
+    df = df[df["nishio-" + metric] > 0]
 
     # logtransform columns
-    logfo = np.log(df["fewestoptions-" + metric])
+    logfo = np.log(df["nishio-" + metric])
     logJW = np.log(df["JW-" + metric])
     logJWTS = np.log(df["JWTS-" + metric])
     logrand = np.log(df["random-" + metric])
