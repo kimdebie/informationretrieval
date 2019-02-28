@@ -1,3 +1,5 @@
+#!/bin/sh
+
 h=$1
 h=${h: -1}
 puzzle=$2

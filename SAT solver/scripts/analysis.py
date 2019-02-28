@@ -3,7 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-sns.set()
+sns.set(font_scale=3)
 from scipy import stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 from statsmodels.stats.multicomp import MultiComparison
@@ -12,7 +12,7 @@ import itertools
 def main():
 
     folder = '../results'
-    heuristics = ['nishio', 'JW', 'JWTS', 'random']
+    heuristics = ['nishio', 'JW', 'JWTS', 'random', 'MOM']
     all_data, long_data = read_results(folder, long_format=True)
 
     # Getting initial statistics
@@ -20,12 +20,12 @@ def main():
     print(mean)
 
     # Visualization
-    # distplot_groups(all_data, "Backtracks", heuristics, \
-    #     xlab="Backtracks", ylab="log Count", title="Spread of backtrack counts")
-    # distplot_groups(all_data, "TriedAssignments", heuristics, \
-    #     xlab="Tried Assignments", ylab="log Count", title="Spread of Tried Assignments counts")
-    # distplot_groups(all_data, "Difficulty", heuristics, \
-    #     xlab="Difficulty", ylab="log Count", title="Spread of difficulty counts")
+    distplot_groups(all_data, "Backtracks", heuristics, \
+        xlab="Backtracks", ylab="log Count", title="Spread of Backtrack counts")
+    distplot_groups(all_data, "TriedAssignments", heuristics, \
+        xlab="Tried Assignments", ylab="log Count", title="Spread of Tried Assignments counts")
+    distplot_groups(all_data, "Difficulty", heuristics, \
+        xlab="Difficulty", ylab="log Count", title="Spread of difficulty scores")
 
     #scatter_groups(all_data, "Difficulty", "random", "nishio", title="Difficulty across heuristics")
     scatter_all_groups(all_data, "Difficulty", heuristics, title="Difficulty across heuristics")
@@ -119,6 +119,8 @@ def scatter_groups(df, scatter_var, xaxis, yaxis, title=None, color=None):
 
     if title:
         plt.title(title)
+
+    plt.axis('equal')
 
     plt.show()
 
