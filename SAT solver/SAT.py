@@ -31,9 +31,16 @@ def main():
     # test whether the algorithm has returned a solution
     if solution:
         print('Success!')
+        with open(puzzle + '.out', 'w') as outfile:
+
+            for literal in solution:
+                outfile.write(str(literal) + ' 0\n')
 
     else:
         print('This problem is unsatisfiable.')
+        
+        with open(puzzle + '.out', 'w') as outfile:
+            outfile.write("")
 
 def DP_algorithm(ruleset, assigned_literals):
 
