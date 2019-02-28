@@ -9,8 +9,8 @@ The main program can be run from SAT.sh. It must be called with a **heuristic** 
 
 * `-S1` for the random branching strategy
 * `-S2` for the MOMS heuristic
-* `-S3` for the Jaroslaw-Wang one-sided heuristic
-* `-S4` for the Jaroslaw-Wang two-sided heuristic
+* `-S3` for the Jeroslaw-Wang one-sided heuristic
+* `-S4` for the Jeroslaw-Wang two-sided heuristic
 * `-S5` for the Nishio heuristic, explained in the paper accompanying this report.
 
 DIMACS files must be provided in the conventional format (lines with c and p may be omitted). An example file is *sudoku_nr_14803.txt*.
